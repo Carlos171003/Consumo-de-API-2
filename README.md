@@ -1,0 +1,97 @@
+# Consumo-de-API-2
+<!--DOCTYPE y html: Es como decir "vamos a hacer una página web" y "esta página va a estar en español".
+head: Aquí ponemos cosas importantes como el título ("Pokémon API con Tailwind CSS") y algunas herramientas (como un disfraz de CSS llamado Tailwind CSS para que nuestra página se vea bonita).-->
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pokémon API con Tailwind CSS</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+<!--body: Aquí empieza el lugar donde hacemos la fiesta, con un fondo rojo.
+div container: Es una caja en el centro donde vamos a poner todas nuestras cosas.-->
+<body class= "bg-gray-200">
+
+    <div class="container mx-auto p-3">
+        <!--h1: Es un letrero grande que dice "Buscador de Pokémon".-->
+        <h1 class="text-1xl font-bold text-center mb-2  ">Buscador de Pokémon</h1>
+        
+        <!--input: Aquí es donde escribes el nombre del Pokémon que quieres buscar.
+        button: Es un botón azul que dice "Busca". Cuando lo presionas, empieza la búsqueda.-->
+        <div class="flex justify-center mb-4">
+            <input id="search-input" type="text" placeholder="Ingresa el nombre del Pokémon" class="p-2 border rounded-l-lg w-2/3">
+            <button id="search-button" class="bg-blue-300 text-white p-2 rounded-r-lg">Busca</button>
+        </div>
+        <!--div pokemon-container: Es una caja vacía donde aparecerá la información del Pokémon que busques.-->
+        <div id="pokemon-container" class="flex justify-center">
+            <!-- La información del Pokémon se añadirá aquí -->
+        </div>
+    </div>
+    <!--script: Aquí comienza la magia. Es un hechizo (código) que se ejecuta cuando buscamos un Pokémon.
+    fetchPokemonByName: Es un hechizo especial que busca un Pokémon por su nombre.-->
+    <script>
+        async function fetchPokemonByName(name) {
+            const pokemonContainer = document.getElementById('pokemon-container');
+            pokemonContainer.innerHTML = '';
+            //fetch: Aquí es donde buscamos en internet (en la PokéAPI) al Pokémon que queremos.
+            //pokemonCard: Es una tarjeta bonita donde vamos a poner la imagen y los detalles del Pokémon.
+            try {
+                const response = await fetch(`https://pokeapi.co/api/v2/pokemon/${name.toLowerCase()}`);
+                const pokemonData = await response.json();
+                
+                const pokemonCard = document.createElement('div');
+                pokemonCard.className = 'bg-gradient-to-r from-green-400 via-blue-500 to-purple-600 text-white p-6 rounded-lg shadow-md flex flex-col items-center';
+
+                //pokemonImg, pokemonName, pokemonDetails: Aquí creamos y llenamos una imagen, el nombre y los detalles del Pokémon.
+                //appendChild: Ponemos toda esta información dentro de la tarjeta y la tarjeta dentro de la caja (pokemon-container).
+                const pokemonImg = document.createElement('img');
+                pokemonImg.src = pokemonData.sprites.front_default;
+                pokemonImg.alt = pokemonData.name;
+                pokemonImg.className = 'w-24 h-24 mb-4';
+
+                const pokemonName = document.createElement('h2');
+                pokemonName.className = 'text-2xl font-bold mb-2';
+                pokemonName.textContent = pokemonData.name;
+
+                const pokemonDetails = document.createElement('p');
+                pokemonDetails.className = 'text-lg';
+                pokemonDetails.innerHTML = `
+                    <strong>Height:</strong> ${pokemonData.height / 10} m<br>
+                    <strong>Weight:</strong> ${pokemonData.weight / 10} kg<br>
+                    <strong>Base Experience:</strong> ${pokemonData.base_experience}<br>
+                    <strong>Types:</strong> ${pokemonData.types.map(type => type.type.name).join(', ')}<br>
+                    <strong>Abilities:</strong> ${pokemonData.abilities.map(ability => ability.ability.name).join(', ')}
+                `;
+
+                pokemonCard.appendChild(pokemonImg);
+                pokemonCard.appendChild(pokemonName);
+                pokemonCard.appendChild(pokemonDetails);
+                pokemonContainer.appendChild(pokemonCard);
+                //catch: Si no encontramos al Pokémon, mostramos un mensaje que dice "Pokémon no encontrado". 
+            } catch (error) {
+                const errorMessage = document.createElement('p');
+                errorMessage.className = 'text-red-500 text-center';
+                errorMessage.textContent = 'Pokémon no encontrado';
+                pokemonContainer.appendChild(errorMessage);
+            }
+        }
+
+        document.getElementById('search-button').addEventListener('click', () => {
+            const searchInput = document.getElementById('search-input').value;
+            if (searchInput) {
+                fetchPokemonByName(searchInput);
+            }
+        });
+
+        document.getElementById('search-input').addEventListener('keypress', (event) => {
+            if (event.key === 'Enter') {
+                const searchInput = document.getElementById('search-input').value;
+                if (searchInput) {
+                    fetchPokemonByName(searchInput);
+                }
+            }
+        });
+    </script>
+</body>
+</html>
